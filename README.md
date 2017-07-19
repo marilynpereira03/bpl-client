@@ -1,6 +1,6 @@
 # bpl-client
 CLI client for bpl blockchain.
-You can connect to devnet, mainnet or your custom private/public ark-derived blockchain
+You can connect to devnet, mainnet or your custom private/public bpl-derived blockchain
 
 Featuring:
 - connection to network or a node
@@ -14,7 +14,7 @@ Featuring:
 # Installation
 You need to have node installed. Then
 ```
-$> npm install -g bplecosystem/bpl-client#master
+$> npm install -g 
 $> bpl-client
   ____  _____  _      
  |  _ \|  __ \| |     
@@ -52,32 +52,32 @@ bpl> help
 
 
 ```
-bpl> connect devnet
+bpl> connect testnet
 Node: 5.39.9.246:4002, height: 21078
-bpl devnet>
+bpl testnet>
 ```
 
 ```
-bpl devnet> account create
+bpl testnet> account create
 Seed    - private: rely cup brand sentence wolf amateur clog knock execute avocado they ready
 WIF     - private: SBHAcXWeCEBDaLVUm4B3idHoLde2qrmi2gkxz8KXtNYfjVMK16pH
 Address - public : DMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
 ```
 
 ```
-bpl devnet> account send 100 AMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
+bpl testnet> account send 100 AMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
 passphrase: ************************************************************************
 Transaction sent successfully with id 7adbf890c88dd345eacbac63e94610fa5f3905528cdc1c36740c3ba3fa3db302
 ```
 
 ```
-bpl devnet> account delegate rockingark
+bpl testnet> account delegate rockingark
 passphrase: **************************************************************************
 Transaction sent successfully with id b857f302611e4f36a33ea886f7bcb951633406ba1f5e40393893234a46ce54eb
 ```
 
 ```
-bpl devnet> account status DMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
+bpl testnet> account status DMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
 { address: 'DMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH',
   unconfirmedBalance: '7500000000',
   balance: '7500000000',
@@ -92,7 +92,7 @@ bpl devnet> account status DMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
 ```
 
 # License
-Copyright © 2017 ARK.io | Copyright © 2017 FX Thoorens
+Copyright © 2017 blockpool.io | Copyright © 2017 FX Thoorens
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
