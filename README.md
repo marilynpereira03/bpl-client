@@ -91,6 +91,12 @@ bpl testnet> account status DMUeELFkFtN5obvStkV9Zt44GEjEaYgKhH
   productivity: 0 }
 ```
 
+## Authors
+- Raj Singh <rsingh@blockpool.io>
+- Brandon Cook <bcook@blockpool.io>
+- FX Thoorens <fx@ark.io>
+- Guillaume Verbal <doweig@ark.io>
+
 # License
 Copyright © 2017 blockpool.io | Copyright © 2017 FX Thoorens
 
