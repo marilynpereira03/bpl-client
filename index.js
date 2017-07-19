@@ -24,14 +24,18 @@ var bplticker = {};
 var currencies = ["USD","AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP", "HKD", "IDR", "INR", "JPY", "KRW", "MXN", "RUB"]
 
 var networks = {
-  devnet: {
-    nethash: "578e820911f24e039733b45e4882b73e301f813a0d2c31330dafda84534ffa23",
+  testnet: {
+    nethash: "65525d4bb7237746c034ad00ae86ba1db43d098c471ca8744e2e06a4d831212c",
     peers: [
-      "167.114.29.51:4002",
-      "167.114.29.52:4002",
-      "167.114.29.53:4002",
-      "167.114.29.54:4002",
-      "167.114.29.55:4002"
+        "34.211.111.67:4000",
+        "13.59.176.127:4000",
+        "54.175.122.162:4000",
+        "13.126.40.180:4000",
+        "54.93.85.178:4000",
+        "54.246.214.229:4000",
+        "35.182.28.68:4000",
+        "54.153.35.65:4000",
+        "54.252.170.222:4000"
     ]
   },
   mainnet: {
@@ -396,7 +400,7 @@ vorpal
       },
       function(passphrase, seriesCb){
         var delegate = args.name;
-        var transaction = bpljs.delegates.createVote(passphrase);
+        var transaction = bpljs.vote.createVote(passphrase);
         self.prompt({
           type: 'confirm',
           name: 'continue',
@@ -550,6 +554,19 @@ vorpal
     }, function(result){
       if (result.passphrase) {
         var transaction = bpljs.delegate.createDelegate(result.passphrase, args.username);
+        self.prompt({
+          type: 'confirm',
+          name: 'continue',
+          default: false,
+          message: 'Register delegate'+args.username +'now ?',
+        }, function(result){
+          if (result.continue) {
+            return seriesCb(null, transaction);
+          }
+          else {
+            return seriesCb("Aborted.")
+          }
+        });
         postTransaction(transaction, function(err, response, body){
           if(body.success){
             self.log(colors.green("Transaction sent successfully with id "+body.transactionIds[0]));
@@ -565,7 +582,19 @@ vorpal
       }
     });
   });
-
+        // self.prompt({
+        //   type: 'confirm',
+        //   name: 'continue',
+        //   default: false,
+        //   message: 'Sending '+bplAmountString+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
+        // }, function(result){
+        //   if (result.continue) {
+        //     return seriesCb(null, transaction);
+        //   }
+        //   else {
+        //     return seriesCb("Aborted.")
+        //   }
+        // });
 
 vorpal
   .command('account create', 'Generate a new random cold account')
