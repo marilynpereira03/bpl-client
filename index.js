@@ -170,7 +170,7 @@ function getBPLTicker(currency){
 vorpal
   .command('connect <network>', 'Connect to network. Network is devnet or mainnet')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     network = networks[args.network];
 
       if(!network){
@@ -200,7 +200,7 @@ vorpal
 vorpal
   .command('connect node <url>', 'Connect to a server. For example "connect node 5.39.9.251:4000"')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     server=args.url;
     getFromNode('http://'+server+'/api/blocks/getNethash', function(err, response, body){
       if(err){
@@ -245,7 +245,7 @@ vorpal
 vorpal
   .command('disconnect', 'Disconnect from server or network')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     self.log("Disconnected from "+server);
     self.delimiter('bpl>');
     server=null;
@@ -261,7 +261,7 @@ vorpal
       self.log("Please connect to node or network before");
       return callback();
     }
-		getFromNode('http://'+server+'/peer/list', function(err, response, body){
+    getFromNode('http://'+server+'/peer/list', function(err, response, body){
       if(err){
         self.log(colors.red("Can't get peers from network: " + err));
         return callback();
@@ -382,7 +382,7 @@ vorpal
 vorpal
   .command('account vote <name>', 'Vote for delegate <name>. Remove previous vote if needed. Leave empty to clear vote')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     async.waterfall([
       function(seriesCb){
         self.prompt({
@@ -442,7 +442,7 @@ vorpal
 vorpal
   .command('account send <amount> <recipient>', 'Send <amount> bpl to <recipient>. <amount> format examples: 10, USD10.4, EUR100')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     if(!server){
       self.log("please connect to node or network before");
       return callback();
@@ -542,7 +542,7 @@ vorpal
 vorpal
   .command('account delegate <username>', 'Register new delegate with <username> ')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     if(!server){
       self.log("please connect to node or network before");
       return callback();
@@ -551,31 +551,31 @@ vorpal
       type: 'password',
       name: 'passphrase',
       message: 'passphrase: ',
-    }, function(result){
-      if (result.passphrase) {
-        var transaction = bpljs.delegate.createDelegate(result.passphrase, args.username);
+    }, function(res){
+      if (res.passphrase) {
         self.prompt({
           type: 'confirm',
           name: 'continue',
-          default: false,
-          message: 'Register delegate'+args.username +'now ?',
+          message: 'Register delegate '+args.username +' now?',
         }, function(result){
           if (result.continue) {
-            return seriesCb(null, transaction);
+              var transaction = bpljs.delegate.createDelegate(res.passphrase, args.username);
+              postTransaction(transaction, function(err, response, body){
+              if(body.success){
+                self.log(colors.green("Transaction sent successfully with id "+body.transactionIds[0]));
+              }
+              else{
+                self.log(colors.red("Failed to send transaction: "+body.error));
+              }
+              return callback();
+            });
           }
           else {
-            return seriesCb("Aborted.")
+            self.log('Aborted.');
+            return callback();
           }
         });
-        postTransaction(transaction, function(err, response, body){
-          if(body.success){
-            self.log(colors.green("Transaction sent successfully with id "+body.transactionIds[0]));
-          }
-          else{
-            self.log(colors.red("Failed to send transaction: "+body.error));
-          }
-          return callback();
-        });
+        
       } else {
         self.log('Aborted.');
         return callback();
@@ -599,17 +599,17 @@ vorpal
 vorpal
   .command('account create', 'Generate a new random cold account')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     if(!server){
       self.log("please connect to node or network before, in order to retrieve necessery information about address prefixing");
       return callback();
     }
     bpljs.crypto.setNetworkVersion(network.config.version);
     var passphrase = require("bip39").generateMnemonic();
-		self.log("Seed    - private:",passphrase);
-		self.log("WIF     - private:",bpljs.crypto.getKeys(passphrase).toWIF());
-		self.log("Address - public :",bpljs.crypto.getAddress(bpljs.crypto.getKeys(passphrase).publicKey));
-		callback();
+    self.log("Seed    - private:",passphrase);
+    self.log("WIF     - private:",bpljs.crypto.getKeys(passphrase).toWIF());
+    self.log("Address - public :",bpljs.crypto.getAddress(bpljs.crypto.getKeys(passphrase).publicKey));
+    callback();
   });
 
 vorpal
@@ -657,7 +657,7 @@ vorpal
 vorpal
   .command('message sign <message>', 'Sign a message')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     return this.prompt({
       type: 'password',
       name: 'passphrase',
@@ -680,7 +680,7 @@ vorpal
 vorpal
   .command('message verify <message> <publickey>', 'Verify the <message> signed by the owner of <publickey> (you will be prompted to provide the signature)')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     return this.prompt({
       type: 'input',
       name: 'signature',
@@ -691,10 +691,10 @@ vorpal
           var hash = crypto.createHash('sha256');
           hash = hash.update(new Buffer(args.message,"utf-8")).digest();
           var signature = new Buffer(result.signature, "hex");
-        	var publickey= new Buffer(args.publickey, "hex");
-        	var ecpair = bpljs.ECPair.fromPublicKeyBuffer(publickey);
-        	var ecsignature = bpljs.ECSignature.fromDER(signature);
-        	var res = ecpair.verify(hash, ecsignature);
+          var publickey= new Buffer(args.publickey, "hex");
+          var ecpair = bpljs.ECPair.fromPublicKeyBuffer(publickey);
+          var ecsignature = bpljs.ECSignature.fromDER(signature);
+          var res = ecpair.verify(hash, ecsignature);
           self.log(res);
         }
         catch(error){
@@ -712,7 +712,7 @@ var shbplspinner;
 vorpal
   .command("shBPL", "No you don't want to use this command")
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     self.log(colors.red(figlet.textSync("shBPL")));
     shbplspinner = ora({text:"Watch out, the shBPL attack!",spinner:"shbpl"}).start();
     callback();
@@ -728,7 +728,7 @@ vorpal
     ["tux","meow","bunny","cower","dragon-and-cow"].forEach(function(spbpl){
       setTimeout(function(){
         self.log(cowsay.say({text:"SPAAAABPLLLLLL!", f:spbpl}));
-  		}, time++*1000);
+      }, time++*1000);
     });
 
     callback();
