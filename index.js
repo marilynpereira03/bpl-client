@@ -129,6 +129,9 @@ function findEnabledPeers(cb){
 }
 
 function postTransaction(transaction, cb){
+  // console.log("in pody trsndsvtion")
+  // console.log(transaction)
+  // console.log(cb)
   request(
     {
       url: 'http://'+server+'/peer/transactions',
@@ -168,7 +171,7 @@ function getBPLTicker(currency){
 }
 
 vorpal
-  .command('connect <network>', 'Connect to network. Network is devnet or mainnet')
+  .command('connect <network>', 'Connect to network. Network is testnet or mainnet')
   .action(function(args, callback) {
 		var self = this;
     network = networks[args.network];
@@ -400,12 +403,15 @@ vorpal
       },
       function(passphrase, seriesCb){
         var delegate = args.name;
-        var transaction = bpljs.vote.createVote(passphrase);
+        console.log("inside index.js for bpl-client")
+        var transaction = bpljs.vote.createVote(passphrase,delegate);
+        console.log(transaction)
         self.prompt({
           type: 'confirm',
           name: 'continue',
           default: false,
-          message: 'Sending '+ambplount/100000000+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
+          message : 'Creating'+ delegate +'as a delegate',
+          // message: 'Sending '+bplamount/100000000+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
         }, function(result){
           if (result.continue) {
             return seriesCb(null, transaction);
@@ -554,19 +560,19 @@ vorpal
     }, function(result){
       if (result.passphrase) {
         var transaction = bpljs.delegate.createDelegate(result.passphrase, args.username);
-        self.prompt({
-          type: 'confirm',
-          name: 'continue',
-          default: false,
-          message: 'Register delegate'+args.username +'now ?',
-        }, function(result){
-          if (result.continue) {
-            return seriesCb(null, transaction);
-          }
-          else {
-            return seriesCb("Aborted.")
-          }
-        });
+        // self.prompt({
+        //   type: 'confirm',
+        //   name: 'continue',
+        //   default: false,
+        //   message: 'Register delegate'+args.username +'now ?',
+        // }, function(result){
+        //   if (result.continue) {
+        //     return seriesCb(null, transaction);
+        //   }
+        //   else {
+        //     return seriesCb("Aborted.")
+        //   }
+        // });
         postTransaction(transaction, function(err, response, body){
           if(body.success){
             self.log(colors.green("Transaction sent successfully with id "+body.transactionIds[0]));
