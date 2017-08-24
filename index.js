@@ -167,6 +167,47 @@ function getBPLTicker(currency){
   });
 }
 
+//verifyDelegate: checks if delegate exists
+function verifyDelegate(name, cb){
+  request({url: "http://"+server+"/api/delegates/get/?username="+name}, function(err, response, body){
+    body = JSON.parse(body);
+    return cb(err, response, body);
+  });
+}
+
+//formatTransaction: adds additional properties required to make a vote transaction
+function formatTransaction(transaction){
+  var d = new Date(Date.UTC(2017,2,21,13,0,0,0))
+  var t = parseInt(d.getTime() / 1000);
+  
+  transaction['senderId'] = transaction.recipientId;
+  transaction['label'] = 'Vote';
+  transaction['date'] = new Date((transaction.timestamp + t) * 1000);
+  transaction['total'] = -transaction.amount-transaction.fee;
+  transaction['humanTotal'] = numberToFixed(transaction.total / 100000000) + '';
+  transaction['confirmations'] = 0;
+
+  return transaction;
+}
+
+function numberToFixed(x) {
+  if (Math.abs(x) < 1.0) {
+    var e = parseInt(x.toString().split('e-')[1]);
+    if (e) {
+        x *= Math.pow(10,e-1);
+        x = '0.' + (new Array(e)).join('0') + x.toString().substring(2);
+    }
+  } else {
+    var e = parseInt(x.toString().split('+')[1]);
+    if (e > 20) {
+        e -= 20;
+        x /= Math.pow(10,e);
+        x += (new Array(e+1)).join('0');
+    }
+  }
+  return x;
+}
+
 vorpal
   .command('connect <network>', 'Connect to network. Network is devnet or mainnet')
   .action(function(args, callback) {
@@ -343,7 +384,7 @@ vorpal
   .action(function(args, callback) {
     var self = this;
     if(!server){
-      self.log("please connect to node or network before");
+      self.log("Please connect to node or network before.");
       return callback();
     }
     var address=args.address;
@@ -383,6 +424,11 @@ vorpal
   .command('account vote <name>', 'Vote for delegate <name>. Remove previous vote if needed. Leave empty to clear vote')
   .action(function(args, callback) {
     var self = this;
+    if(!server){
+      self.log("Please connect to node or network before");
+      return callback();
+    }
+
     async.waterfall([
       function(seriesCb){
         self.prompt({
@@ -399,19 +445,31 @@ vorpal
         });
       },
       function(passphrase, seriesCb){
-        var delegate = args.name;
-        var transaction = bpljs.vote.createVote(passphrase);
-        self.prompt({
-          type: 'confirm',
-          name: 'continue',
-          default: false,
-          message: 'Sending '+ambplount/100000000+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
-        }, function(result){
-          if (result.continue) {
-            return seriesCb(null, transaction);
+        verifyDelegate(args.name, function(err, response, body) {
+          if(body.success) {
+            //create array of delegate public keys
+            var arr = new Array();
+            arr.push('+'+body.delegate.publicKey);
+            
+            var transaction = bpljs.vote.createVote(passphrase, arr);
+            transaction = formatTransaction(transaction);
+
+            self.prompt({
+              type: 'confirm',
+              name: 'continue',
+              default: false,
+              message: 'Vote for '+args.name +' now?',
+            }, function(result){
+              if (result.continue) {
+                return seriesCb(null, transaction);
+              }
+              else {
+                return seriesCb("Aborted.")
+              }
+            });
           }
           else {
-            return seriesCb("Aborted.")
+            return seriesCb(body.error)
           }
         });
       },
@@ -444,7 +502,7 @@ vorpal
   .action(function(args, callback) {
     var self = this;
     if(!server){
-      self.log("please connect to node or network before");
+      self.log("Please connect to node or network before.");
       return callback();
     }
     var currency;
@@ -544,7 +602,7 @@ vorpal
   .action(function(args, callback) {
     var self = this;
     if(!server){
-      self.log("please connect to node or network before");
+      self.log("Please connect to node or network before.");
       return callback();
     }
     return this.prompt({
@@ -582,26 +640,13 @@ vorpal
       }
     });
   });
-        // self.prompt({
-        //   type: 'confirm',
-        //   name: 'continue',
-        //   default: false,
-        //   message: 'Sending '+bplAmountString+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
-        // }, function(result){
-        //   if (result.continue) {
-        //     return seriesCb(null, transaction);
-        //   }
-        //   else {
-        //     return seriesCb("Aborted.")
-        //   }
-        // });
 
 vorpal
   .command('account create', 'Generate a new random cold account')
   .action(function(args, callback) {
     var self = this;
     if(!server){
-      self.log("please connect to node or network before, in order to retrieve necessery information about address prefixing");
+      self.log("Please connect to node or network before, in order to retrieve necessery information about address prefixing");
       return callback();
     }
     bpljs.crypto.setNetworkVersion(network.config.version);
@@ -617,7 +662,7 @@ vorpal
   .action(function(args, callback) {
     var self=this;
     if(!server){
-      self.log("please connect to node or network before, in order to retrieve necessery information about address prefixing");
+      self.log("Please connect to node or network before, in order to retrieve necessery information about address prefixing");
       return callback();
     }
 
