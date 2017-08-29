@@ -23,6 +23,7 @@ var network;
 var bplticker = {};
 var currencies = ["USD","AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP", "HKD", "IDR", "INR", "JPY", "KRW", "MXN", "RUB"]
 
+
 var networks = {
   testnet: {
     nethash: "f9b98b78d2012ba8fd75538e3569bbc071ce27f0f93414218bc34bc72bdeb3db",
@@ -187,7 +188,7 @@ function numberToFixed(x) {
 }
 
 vorpal
-  .command('connect <network>', 'Connect to network. Network is devnet or mainnet')
+  .command('connect <network>', 'Connect to network. Network is testnet or mainnet')
   .action(function(args, callback) {
     var self = this;
     network = networks[args.network];
