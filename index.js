@@ -25,8 +25,9 @@ var currencies = ["USD","AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP", "HKD", 
 
 var networks = {
   testnet: {
-    nethash: "65525d4bb7237746c034ad00ae86ba1db43d098c471ca8744e2e06a4d831212c",
+    nethash: "f9b98b78d2012ba8fd75538e3569bbc071ce27f0f93414218bc34bc72bdeb3db",
     peers: [
+        "52.66.184.223:4000",
         "34.211.111.67:4000",
         "13.59.176.127:4000",
         "54.175.122.162:4000",
@@ -35,58 +36,35 @@ var networks = {
         "54.246.214.229:4000",
         "35.182.28.68:4000",
         "54.153.35.65:4000",
-        "54.252.170.222:4000"
+        "54.252.170.222:4000",
+        "13.124.137.65:4000",
+        "52.78.18.248:4000",
+        "54.206.6.159:4000",
+        "54.183.178.42:4000",
+        "54.241.135.25:4000",
+        "52.60.226.39:4000",
+        "52.60.223.205:4000",
+        "176.34.156.16:4000",
+        "54.154.120.195:4000",
+        "54.93.33.249:4000"
     ]
   },
   mainnet: {
     nethash: "6e84d08bd299ed97c212c886c98a57e36545c8f5d645ca7eeae63a8bd62d8988",
     peers: [
-      "5.39.9.240:4001",
-      "5.39.9.241:4001",
-      "5.39.9.242:4001",
-      "5.39.9.243:4001",
-      "5.39.9.244:4001",
-      "5.39.9.250:4001",
-      "5.39.9.251:4001",
-      "5.39.9.252:4001",
-      "5.39.9.253:4001",
-      "5.39.9.254:4001",
-      "5.39.9.255:4001",
-      "5.39.53.48:4001",
-      "5.39.53.49:4001",
-      "5.39.53.50:4001",
-      "5.39.53.51:4001",
-      "5.39.53.52:4001",
-      "5.39.53.53:4001",
-      "5.39.53.54:4001",
-      "5.39.53.55:4001",
-      "37.59.129.160:4001",
-      "37.59.129.161:4001",
-      "37.59.129.162:4001",
-      "37.59.129.163:4001",
-      "37.59.129.164:4001",
-      "37.59.129.165:4001",
-      "37.59.129.166:4001",
-      "37.59.129.167:4001",
-      "37.59.129.168:4001",
-      "37.59.129.169:4001",
-      "37.59.129.170:4001",
-      "37.59.129.171:4001",
-      "37.59.129.172:4001",
-      "37.59.129.173:4001",
-      "37.59.129.174:4001",
-      "37.59.129.175:4001",
-      "193.70.72.80:4001",
-      "193.70.72.81:4001",
-      "193.70.72.82:4001",
-      "193.70.72.83:4001",
-      "193.70.72.84:4001",
-      "193.70.72.85:4001",
-      "193.70.72.86:4001",
-      "193.70.72.87:4001",
-      "193.70.72.88:4001",
-      "193.70.72.89:4001",
-      "193.70.72.90:4001"
+      "13.56.163.57:4000",
+      "54.183.132.15:4000",
+      "54.183.69.30:4000",
+      "54.183.152.67:4000",
+      "54.183.22.145:4000",
+      "54.183.209.94:4000",
+      "54.202.194.76:4000",
+      "34.212.0.73:4000",
+      "54.202.119.251:4000",
+      "34.211.228.49:4000",
+      "13.229.63.24:4000",
+      "54.255.255.199:4000",
+      "54.255.170.7:4000"
     ]
   }
 };
@@ -167,10 +145,51 @@ function getBPLTicker(currency){
   });
 }
 
+//verifyDelegate: checks if delegate exists
+function verifyDelegate(name, cb){
+  request({url: "http://"+server+"/api/delegates/get/?username="+name}, function(err, response, body){
+    body = JSON.parse(body);
+    return cb(err, response, body);
+  });
+}
+
+//formatTransaction: adds additional properties required to make a vote transaction
+function formatTransaction(transaction){
+  var d = new Date(Date.UTC(2017,2,21,13,0,0,0))
+  var t = parseInt(d.getTime() / 1000);
+
+  transaction['senderId'] = transaction.recipientId;
+  transaction['label'] = 'Vote';
+  transaction['date'] = new Date((transaction.timestamp + t) * 1000);
+  transaction['total'] = -transaction.amount-transaction.fee;
+  transaction['humanTotal'] = numberToFixed(transaction.total / 100000000) + '';
+  transaction['confirmations'] = 0;
+
+  return transaction;
+}
+
+function numberToFixed(x) {
+  if (Math.abs(x) < 1.0) {
+    var e = parseInt(x.toString().split('e-')[1]);
+    if (e) {
+        x *= Math.pow(10,e-1);
+        x = '0.' + (new Array(e)).join('0') + x.toString().substring(2);
+    }
+  } else {
+    var e = parseInt(x.toString().split('+')[1]);
+    if (e > 20) {
+        e -= 20;
+        x /= Math.pow(10,e);
+        x += (new Array(e+1)).join('0');
+    }
+  }
+  return x;
+}
+
 vorpal
   .command('connect <network>', 'Connect to network. Network is devnet or mainnet')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     network = networks[args.network];
 
       if(!network){
@@ -200,7 +219,7 @@ vorpal
 vorpal
   .command('connect node <url>', 'Connect to a server. For example "connect node 5.39.9.251:4000"')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     server=args.url;
     getFromNode('http://'+server+'/api/blocks/getNethash', function(err, response, body){
       if(err){
@@ -245,7 +264,7 @@ vorpal
 vorpal
   .command('disconnect', 'Disconnect from server or network')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     self.log("Disconnected from "+server);
     self.delimiter('bpl>');
     server=null;
@@ -261,7 +280,7 @@ vorpal
       self.log("Please connect to node or network before");
       return callback();
     }
-		getFromNode('http://'+server+'/peer/list', function(err, response, body){
+    getFromNode('http://'+server+'/peer/list', function(err, response, body){
       if(err){
         self.log(colors.red("Can't get peers from network: " + err));
         return callback();
@@ -343,7 +362,7 @@ vorpal
   .action(function(args, callback) {
     var self = this;
     if(!server){
-      self.log("please connect to node or network before");
+      self.log("Please connect to node or network before.");
       return callback();
     }
     var address=args.address;
@@ -382,7 +401,12 @@ vorpal
 vorpal
   .command('account vote <name>', 'Vote for delegate <name>. Remove previous vote if needed. Leave empty to clear vote')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
+    if(!server){
+      self.log("Please connect to node or network before");
+      return callback();
+    }
+
     async.waterfall([
       function(seriesCb){
         self.prompt({
@@ -399,19 +423,31 @@ vorpal
         });
       },
       function(passphrase, seriesCb){
-        var delegate = args.name;
-        var transaction = bpljs.vote.createVote(passphrase);
-        self.prompt({
-          type: 'confirm',
-          name: 'continue',
-          default: false,
-          message: 'Sending '+ambplount/100000000+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
-        }, function(result){
-          if (result.continue) {
-            return seriesCb(null, transaction);
+        verifyDelegate(args.name, function(err, response, body) {
+          if(body.success) {
+            //create array of delegate public keys
+            var arr = new Array();
+            arr.push('+'+body.delegate.publicKey);
+
+            var transaction = bpljs.vote.createVote(passphrase, arr);
+            transaction = formatTransaction(transaction);
+
+            self.prompt({
+              type: 'confirm',
+              name: 'continue',
+              default: false,
+              message: 'Vote for '+args.name +' now?',
+            }, function(result){
+              if (result.continue) {
+                return seriesCb(null, transaction);
+              }
+              else {
+                return seriesCb("Aborted.")
+              }
+            });
           }
           else {
-            return seriesCb("Aborted.")
+            return seriesCb(body.error)
           }
         });
       },
@@ -442,9 +478,9 @@ vorpal
 vorpal
   .command('account send <amount> <recipient>', 'Send <amount> bpl to <recipient>. <amount> format examples: 10, USD10.4, EUR100')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     if(!server){
-      self.log("please connect to node or network before");
+      self.log("Please connect to node or network before.");
       return callback();
     }
     var currency;
@@ -542,74 +578,61 @@ vorpal
 vorpal
   .command('account delegate <username>', 'Register new delegate with <username> ')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     if(!server){
-      self.log("please connect to node or network before");
+      self.log("Please connect to node or network before.");
       return callback();
     }
     return this.prompt({
       type: 'password',
       name: 'passphrase',
       message: 'passphrase: ',
-    }, function(result){
-      if (result.passphrase) {
-        var transaction = bpljs.delegate.createDelegate(result.passphrase, args.username);
+    }, function(res){
+      if (res.passphrase) {
         self.prompt({
           type: 'confirm',
           name: 'continue',
-          default: false,
-          message: 'Register delegate'+args.username +'now ?',
+          message: 'Register delegate '+args.username +' now?',
         }, function(result){
           if (result.continue) {
-            return seriesCb(null, transaction);
+              var transaction = bpljs.delegate.createDelegate(res.passphrase, args.username);
+              postTransaction(transaction, function(err, response, body){
+              if(body.success){
+                self.log(colors.green("Transaction sent successfully with id "+body.transactionIds[0]));
+              }
+              else{
+                self.log(colors.red("Failed to send transaction: "+body.error));
+              }
+              return callback();
+            });
           }
           else {
-            return seriesCb("Aborted.")
+            self.log('Aborted.');
+            return callback();
           }
         });
-        postTransaction(transaction, function(err, response, body){
-          if(body.success){
-            self.log(colors.green("Transaction sent successfully with id "+body.transactionIds[0]));
-          }
-          else{
-            self.log(colors.red("Failed to send transaction: "+body.error));
-          }
-          return callback();
-        });
+
       } else {
         self.log('Aborted.');
         return callback();
       }
     });
   });
-        // self.prompt({
-        //   type: 'confirm',
-        //   name: 'continue',
-        //   default: false,
-        //   message: 'Sending '+bplAmountString+'BPL '+(currency?'('+currency+args.amount+') ':'')+'to '+args.recipient+' now',
-        // }, function(result){
-        //   if (result.continue) {
-        //     return seriesCb(null, transaction);
-        //   }
-        //   else {
-        //     return seriesCb("Aborted.")
-        //   }
-        // });
 
 vorpal
   .command('account create', 'Generate a new random cold account')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     if(!server){
-      self.log("please connect to node or network before, in order to retrieve necessery information about address prefixing");
+      self.log("Please connect to node or network before, in order to retrieve necessery information about address prefixing");
       return callback();
     }
     bpljs.crypto.setNetworkVersion(network.config.version);
     var passphrase = require("bip39").generateMnemonic();
-		self.log("Seed    - private:",passphrase);
-		self.log("WIF     - private:",bpljs.crypto.getKeys(passphrase).toWIF());
-		self.log("Address - public :",bpljs.crypto.getAddress(bpljs.crypto.getKeys(passphrase).publicKey));
-		callback();
+    self.log("Seed    - private:",passphrase);
+    self.log("WIF     - private:",bpljs.crypto.getKeys(passphrase).toWIF());
+    self.log("Address - public :",bpljs.crypto.getAddress(bpljs.crypto.getKeys(passphrase).publicKey));
+    callback();
   });
 
 vorpal
@@ -617,7 +640,7 @@ vorpal
   .action(function(args, callback) {
     var self=this;
     if(!server){
-      self.log("please connect to node or network before, in order to retrieve necessery information about address prefixing");
+      self.log("Please connect to node or network before, in order to retrieve necessery information about address prefixing");
       return callback();
     }
 
@@ -657,7 +680,7 @@ vorpal
 vorpal
   .command('message sign <message>', 'Sign a message')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     return this.prompt({
       type: 'password',
       name: 'passphrase',
@@ -680,7 +703,7 @@ vorpal
 vorpal
   .command('message verify <message> <publickey>', 'Verify the <message> signed by the owner of <publickey> (you will be prompted to provide the signature)')
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     return this.prompt({
       type: 'input',
       name: 'signature',
@@ -691,10 +714,10 @@ vorpal
           var hash = crypto.createHash('sha256');
           hash = hash.update(new Buffer(args.message,"utf-8")).digest();
           var signature = new Buffer(result.signature, "hex");
-        	var publickey= new Buffer(args.publickey, "hex");
-        	var ecpair = bpljs.ECPair.fromPublicKeyBuffer(publickey);
-        	var ecsignature = bpljs.ECSignature.fromDER(signature);
-        	var res = ecpair.verify(hash, ecsignature);
+          var publickey= new Buffer(args.publickey, "hex");
+          var ecpair = bpljs.ECPair.fromPublicKeyBuffer(publickey);
+          var ecsignature = bpljs.ECSignature.fromDER(signature);
+          var res = ecpair.verify(hash, ecsignature);
           self.log(res);
         }
         catch(error){
@@ -712,7 +735,7 @@ var shbplspinner;
 vorpal
   .command("shBPL", "No you don't want to use this command")
   .action(function(args, callback) {
-		var self = this;
+    var self = this;
     self.log(colors.red(figlet.textSync("shBPL")));
     shbplspinner = ora({text:"Watch out, the shBPL attack!",spinner:"shbpl"}).start();
     callback();
@@ -728,7 +751,7 @@ vorpal
     ["tux","meow","bunny","cower","dragon-and-cow"].forEach(function(spbpl){
       setTimeout(function(){
         self.log(cowsay.say({text:"SPAAAABPLLLLLL!", f:spbpl}));
-  		}, time++*1000);
+      }, time++*1000);
     });
 
     callback();

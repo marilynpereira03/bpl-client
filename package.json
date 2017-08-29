@@ -23,8 +23,7 @@
   "author": "fx.thoorens@ark.io",
   "license": "MIT",
   "dependencies": {
-    "bpljs": "github:blockpool-io/BPL-js#testnet",
-    "arkjs": "github:arkecosystem/ark-js#master",
+    "bpljs": "github:blockpool-io/BPL-js#mainnet",
     "ascii-table": "0.0.9",
     "asciichart": "^0.1.7",
     "async": "^2.1.5",
