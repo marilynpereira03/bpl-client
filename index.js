@@ -535,7 +535,7 @@ vorpal
           bplAmountString = bplamount/100000000;
         }
 
-        var transaction = bpljs.transaction.createTransaction(args.recipient, bplamount, null, passphrase);
+        var transaction = bpljs.transaction.createTransaction(args.recipient, bplamount*100000000, null, passphrase);
 
         self.prompt({
           type: 'confirm',
