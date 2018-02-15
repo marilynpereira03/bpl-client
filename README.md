@@ -1,4 +1,4 @@
-# bpl-client
+# wbx-client
 CLI client for bpl blockchain.
 You can connect to devnet, mainnet or your custom private/public bpl-derived blockchain
 
@@ -15,20 +15,19 @@ Featuring:
 You need to have node installed. Then
 ```
 $> npm install -g 
-$> bpl-client
-  ____  _____  _      
- |  _ \|  __ \| |     
- | |_) | |__) | |     
- |  _ <|  ___/| |     
- | |_) | |    | |____ 
- |____/|_|    |______|
-                      
-bpl>
+$> wbx-client
+ _       ____            _________            __ 
+| |     / / /_  _  __   / ____/ (_)__  ____  / /_
+| | /| / / __ \| |/_/  / /   / / / _ \/ __ \/ __/
+| |/ |/ / /_/ />  <   / /___/ / /  __/ / / / /_  
+|__/|__/_.___/_/|_|   \____/_/_/\___/_/ /_/\__/  
+
+wbx>
 ```
 
 # Usage
 ```
-bpl> help
+wbx> help
 
   Commands:
 
@@ -40,44 +39,44 @@ bpl> help
     network stats                         Get stats from network
     account status <address>              Get account status
     account vote <name>                   Vote for delegate <name>. Remove previous vote if needed. Leave empty to clear vote
-    account send <amount> <recipient>     Send <amount> bpl to <recipient>. <amount> format examples: 10, USD10.4, EUR100
+    account send <amount> <recipient>     Send <amount> wbx to <recipient>. <amount> format examples: 10, USD10.4, EUR100
     account delegate <username>           Register new delegate with <username>
     account create                        Generate a new random cold account
     account vanity <string>               Generate an address containing lowercased <string> (WARNING you could wait for long)
     message sign <message>                Sign a message
     message verify <message> <publickey>  Verify the <message> signed by the owner of <publickey> (you will be prompted to provide the signature)
-    shBPL                                 No you don't want to use this command
+    shWBX                                 No you don't want to use this command
 ```
 
 
 
 ```
-bpl> connect mainnet
+wbx> connect mainnet
 Node: 54.183.132.15:4001, height: 4092
-bpl mainnet>
+wbx mainnet>
 ```
 
 ```
-bpl mainnet> account create
-Seed    - private: artist is leader museum solid expect better gather device subject royal lounge
-WIF     - private: doQp9Y58MUi9uBfrMpu197Rf5JJfLATX6aCbEyGbzaXmc*****
-Address - public : BBRxfCmaHpc7aJfLXAuQbV9mRp6G6uvDhZ
+wbx mainnet> account create
+Seed    - private: addict correct merry celery pioneer betray glue inflict come start nose busy
+WIF     - private: SGWGXizkr6xgqkCfnrUH194JdzqPkZMGBLSsyotZve8CUQaK1LiN
+Address - public : WQxu1fFYqHbBx63oduwV5EVivX6f3Gnmqr
 ```
 
 ```
-bpl mainnet> account send 100 BBRxfCmaHpc7aJfLXAuQbV9mRp6G6uvDhZ
+wbx mainnet> account send 100 WXiVw7q88TKSmw3w63vgH8vPZpm5LPRnrW
 passphrase: ************************************************************************
 Transaction sent successfully with id 7adbf890c88dd345eacbac63e94610fa5f3905528cdc1c36740c3ba3fa3db302
 ```
 
 ```
-bpl mainnet> account delegate cyrus
+wbx mainnet> account delegate cyrus
 passphrase: **************************************************************************
 Transaction sent successfully with id b857f302611e4f36a33ea886f7bcb951633406ba1f5e40393893234a46ce54eb
 ```
 
 ```
-bpl mainnet> account status BDChAoNqWjArVi9DzPFshNrGmCqMB66aCa
+wbx mainnet> account status WXiVw7q88TKSmw3w63vgH8vPZpm5LPRnrW
 
 .------------------------------------------------------------------------------------------------------------------------.
 |   unconfirmedBalance    |         balance         |                             publicKey                              |
