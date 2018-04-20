@@ -27,23 +27,7 @@ var ticker = {};
 var currencies = ["USD","AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP", "HKD", "IDR", "INR", "JPY", "KRW", "MXN", "RUB"]
 
 
-var networks = {
-  mainnet: {
-    nethash: "dbb912a604b286bbe2b17e4936b0f71b8cdb1d7dc4660e28118a5ed1700222f8",
-    peers: [
-        "165.227.224.117:9032",
-        "165.227.239.66:9032",
-        "138.68.183.82:9032",
-        "178.62.23.57:9032",
-        "178.62.50.166:9032",
-        "165.227.224.124:9032",
-        "138.68.183.46:9032",
-        "138.68.183.85:9032",
-        "165.227.239.102:9032",
-        "165.227.224.102:9032"
-    ]
-  }
-};
+var networks = config.configuredNetworks;
 
 function getNetworkFromNethash(nethash){
   for(var n in networks){
