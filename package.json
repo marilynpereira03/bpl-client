@@ -23,7 +23,7 @@
   "author": "rsingh@blockpool.io",
   "license": "MIT",
   "dependencies": {
-    "bpljs": "0.2.3",
+    "bpljs": "github:marilynpereira03/BPL-js#development",
     "ascii-table": "0.0.9",
     "asciichart": "^0.1.7",
     "async": "^2.1.5",
