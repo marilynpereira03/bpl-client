@@ -1,5 +1,7 @@
 var bip39 = require("bip39");
+var config = require('./config.json');
 var bpljs = require("bpljs");
+bpljs = new bpljs.BplClass(config);
 
 process.on("message", function(message){
 
