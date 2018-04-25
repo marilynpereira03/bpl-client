@@ -592,7 +592,7 @@ vorpal
       self.log("Please connect to node or network before.");
       return callback();
     }
-    return this.prompt({
+    this.prompt({
       type: 'password',
       name: 'passphrase',
       message: 'passphrase: ',
